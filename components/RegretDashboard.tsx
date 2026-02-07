@@ -11,7 +11,7 @@ const Knob: React.FC<{ label: string; value: number; onChange: (val: number) => 
       <div className="relative w-24 h-24 rounded-full bg-white/5 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),inset_0_-2px_4px_rgba(0,0,0,0.4)] flex items-center justify-center">
         {/* Rotating Indicator */}
         <div 
-          className="w-full h-full rounded-full cursor-grab active:cursor-grabbing"
+          className="w-full h-full rounded-full cursor-grab active:cursor-grabbing touch-none"
           style={{ transform: `rotate(${(value / 100) * 270 - 135}deg)` }}
           onMouseDown={(e) => {
             const startY = e.clientY;
@@ -28,7 +28,29 @@ const Knob: React.FC<{ label: string; value: number; onChange: (val: number) => 
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mouseup', handleMouseUp);
           }}
-          // Touch support omitted for brevity, logic is similar
+          onTouchStart={(e) => {
+            const startY = e.touches[0].clientY;
+            const startVal = value;
+
+            const handleTouchMove = (moveEvent: TouchEvent) => {
+              // Prevent screen scrolling while adjusting the knob
+              if (moveEvent.cancelable) moveEvent.preventDefault();
+              
+              const currentY = moveEvent.touches[0].clientY;
+              const delta = startY - currentY;
+              const newVal = Math.min(100, Math.max(0, startVal + delta));
+              onChange(newVal);
+            };
+
+            const handleTouchEnd = () => {
+              window.removeEventListener('touchmove', handleTouchMove);
+              window.removeEventListener('touchend', handleTouchEnd);
+            };
+
+            // { passive: false } allows us to preventDefault inside the listener
+            window.addEventListener('touchmove', handleTouchMove, { passive: false });
+            window.addEventListener('touchend', handleTouchEnd);
+          }}
         >
           <div className="absolute top-2 left-1/2 -translate-x-1/2 w-2 h-2 bg-soft-pink rounded-full shadow-[0_0_10px_#ED64A6]" />
         </div>

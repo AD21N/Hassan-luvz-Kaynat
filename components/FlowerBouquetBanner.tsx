@@ -208,7 +208,7 @@ const FlowerBouquetBanner: React.FC = () => {
                         className="text-center"
                     >
                         <h1 className="font-serif text-4xl md:text-6xl text-white mb-2 drop-shadow-lg leading-tight">
-                            I'm Sorry
+                            I'M SORRY MY Universe
                         </h1>
                         <p className="font-sans text-soft-pink/80 text-sm tracking-widest uppercase">
                             Let's grow together again
