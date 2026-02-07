@@ -5,14 +5,10 @@ import { CUSTOM_EASE } from '../constants';
 
 interface LoadingScreenProps {
   onComplete: () => void;
-  onPlayMusic: () => void;
-  onPauseMusic: () => void;
 }
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({ 
   onComplete, 
-  onPlayMusic, 
-  onPauseMusic,
 }) => {
   const [progress, setProgress] = useState(0);
   const [isHolding, setIsHolding] = useState(false);
@@ -21,10 +17,6 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
   useEffect(() => {
     let interval: any;
     
-    // Note: We moved the onPlayMusic/onPauseMusic calls to the event handlers
-    // (onMouseDown/onTouchStart) to satisfy browser autoplay policies that require
-    // a direct user gesture to start audio context.
-
     if (isHolding) {
       interval = setInterval(() => {
         setProgress((prev) => {
@@ -73,27 +65,11 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
 
         <div 
           className="relative w-48 h-48 rounded-full border border-white/20 cursor-pointer overflow-hidden group select-none touch-none"
-          onMouseDown={() => {
-            setIsHolding(true);
-            onPlayMusic();
-          }}
-          onMouseUp={() => {
-            setIsHolding(false);
-            onPauseMusic();
-          }}
-          onTouchStart={(e) => { 
-            e.preventDefault(); 
-            setIsHolding(true); 
-            onPlayMusic(); 
-          }}
-          onTouchEnd={() => {
-            setIsHolding(false);
-            onPauseMusic();
-          }}
-          onMouseLeave={() => {
-            setIsHolding(false);
-            onPauseMusic();
-          }}
+          onMouseDown={() => setIsHolding(true)}
+          onMouseUp={() => setIsHolding(false)}
+          onTouchStart={() => setIsHolding(true)} 
+          onTouchEnd={() => setIsHolding(false)}
+          onMouseLeave={() => setIsHolding(false)}
         >
           {/* Liquid Fill */}
           <motion.div 

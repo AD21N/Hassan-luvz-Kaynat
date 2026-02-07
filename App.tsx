@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LoadingScreen from './components/LoadingScreen';
 import FloatingHearts from './components/FloatingHearts';
@@ -13,11 +13,6 @@ import MusicPlayer from './components/MusicPlayer';
 import PromisesChecklist from './components/PromisesChecklist';
 import FlowerBouquetBanner from './components/FlowerBouquetBanner';
 
-// --- MUSIC CONFIGURATION ---
-// Fallback to simple relative string path. 
-// In standard web server environments where the file is at the root, this works.
-const musicUrl = "./music.mp3";
-
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showHearts, setShowHearts] = useState(false);
@@ -25,44 +20,9 @@ const App: React.FC = () => {
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [isForgiven, setIsForgiven] = useState(false);
 
-  // --- Audio State ---
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  const playAudio = () => {
-    if (audioRef.current) {
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true);
-          })
-          .catch(error => {
-            console.log("Playback prevented:", error);
-            setIsPlaying(false);
-          });
-      }
-    }
-  };
-
-  const pauseAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
-  };
-
-  const toggleAudio = () => {
-    if (isPlaying) pauseAudio();
-    else playAudio();
-  };
-  // -------------------
-
   const handleLoadingComplete = () => {
     setIsLoading(false);
     setShowHearts(true);
-    // Ensure music keeps playing after loading if it was started
-    playAudio();
   };
 
   const handleSigned = () => {
@@ -72,15 +32,19 @@ const App: React.FC = () => {
 
   return (
     <>
-      {/* Global Audio Element */}
-      <audio ref={audioRef} src={musicUrl} loop preload="auto" />
+      {/* 
+        MusicPlayer is rendered unconditionally at the top. 
+        It attaches listeners to 'document' immediately, so interacting 
+        with the LoadingScreen (e.g., holding the heart) will trigger the music.
+        The LoadingScreen is z-50, so we place MusicPlayer before it in DOM to let LoadingScreen cover the button if needed,
+        though MusicPlayer is also fixed z-50.
+      */}
+      <MusicPlayer />
 
       <AnimatePresence mode="wait">
         {isLoading && (
           <LoadingScreen 
             onComplete={handleLoadingComplete} 
-            onPlayMusic={playAudio}
-            onPauseMusic={pauseAudio}
           />
         )}
       </AnimatePresence>
@@ -108,12 +72,6 @@ const App: React.FC = () => {
           
           <FlowerBouquetBanner />
           
-          <MusicPlayer 
-            isPlaying={isPlaying} 
-            onToggle={toggleAudio} 
-            hasTrack={true}
-          />
-
           {/* Responsive Layout Container */}
           <div className="relative z-10 max-w-7xl mx-auto pb-12 md:pb-24 pt-6 md:pt-12 px-4 md:px-6 space-y-16 md:space-y-24">
             
