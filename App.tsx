@@ -16,8 +16,8 @@ import FlowerBouquetBanner from './components/FlowerBouquetBanner';
 // --- MUSIC CONFIGURATION ---
 // We use a relative URL string instead of an import to avoid module resolution errors
 // in environments that don't bundler non-JS assets.
-// Ensure 'music.mp4a' is placed in the public root directory (next to index.html).
-const musicFile = '/music.mp4a';
+// Ensure 'music.m4a' is placed in the public root directory (next to index.html).
+const musicFile = '/music.m4a';
 
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
