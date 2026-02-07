@@ -14,10 +14,9 @@ import PromisesChecklist from './components/PromisesChecklist';
 import FlowerBouquetBanner from './components/FlowerBouquetBanner';
 
 // --- MUSIC CONFIGURATION ---
-// We use a relative URL string instead of an import to avoid module resolution errors
-// in environments that don't bundler non-JS assets.
-// Ensure 'music.m4a' is placed in the public root directory (next to index.html).
-const musicFile = '/music.m4a';
+// Fallback to simple relative string path. 
+// In standard web server environments where the file is at the root, this works.
+const musicUrl = "./music.mp3";
 
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -32,8 +31,17 @@ const App: React.FC = () => {
 
   const playAudio = () => {
     if (audioRef.current) {
-      audioRef.current.play().catch(e => console.log("Playback waiting for interaction"));
-      setIsPlaying(true);
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch(error => {
+            console.log("Playback prevented:", error);
+            setIsPlaying(false);
+          });
+      }
     }
   };
 
@@ -65,7 +73,7 @@ const App: React.FC = () => {
   return (
     <>
       {/* Global Audio Element */}
-      <audio ref={audioRef} src={musicFile} loop />
+      <audio ref={audioRef} src={musicUrl} loop preload="auto" />
 
       <AnimatePresence mode="wait">
         {isLoading && (
